@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>联系 · Pinkie<\/title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+<\/head>
+<body>
+  <canvas id="ambient-canvas" aria-hidden="true"><\/canvas>
+  <div class="aurora-bg" aria-hidden="true">
+    <span class="blob b1"><\/span><span class="blob b2"><\/span>
+    <span class="blob b3"><\/span><span class="blob b4"><\/span>
+  <\/div>
+  <div class="scroll-progress" id="scrollProgress"><\/div>
+
+  <header class="nav" id="nav">
+    <div class="nav__inner">
+      <a class="brand" href="index.html"><span class="brand__dot"><\/span>Pinkie<\/a>
+      <nav class="nav__links" aria-label="主导航">
+        <a href="index.html">首页<\/a>
+        <a href="works.html">作品<\/a>
+        <a href="creates.html">创作<\/a>
+        <a href="about.html">关于<\/a>
+        <a href="contact.html" aria-current="page">联系<\/a>
+      <\/nav>
+      <button class="nav__toggle" aria-label="菜单"><span><\/span><span><\/span><span><\/span><\/button>
+    <\/div>
+  <\/header>
+
+  <main>
+    <section class="section" style="padding-top:calc(var(--nav-h) + var(--sp-10))">
+      <div class="container">
+        <div class="section-head reveal" style="text-align:center">
+          <p class="eyebrow">联系<\/p>
+          <h1 class="section-title">说个想法，我们 vibe 一下<\/h1>
+          <p class="lead muted" style="margin-inline:auto">填下面的表，或者直接找我。通常 24 小时内回。<\/p>
+        <\/div>
+
+        <div class="contact-grid reveal">
+          <!-- 表单：接入后端 / 表单服务后去掉 onsubmit 占位 -->
+          <form class="contact-form" onsubmit="return false">
+            <div class="field">
+              <label for="name">你的名字<\/label>
+              <input id="name" name="name" type="text" placeholder="怎么称呼你" autocomplete="name" />
+            <\/div>
+            <div class="field">
+              <label for="email">邮箱<\/label>
+              <input id="email" name="email" type="email" placeholder="you@xx.com" autocomplete="email" />
+            <\/div>
+            <div class="field">
+              <label for="msg">想 vibe 什么<\/label>
+              <textarea id="msg" name="msg" placeholder="一句话讲讲你的点子 / 需求"><\/textarea>
+            <\/div>
+            <button class="btn btn--primary btn--lg" type="submit">发送 →<\/button>
+          <\/form>
+
+          <div class="contact-list">
+            <div class="contact-item">
+              <span class="ic">✉️<\/span>
+              <div><div class="k">Email<\/div><div class="v">hi@yourname.dev<\/div><\/div>
+            <\/div>
+            <div class="contact-item">
+              <span class="ic">𝕏<\/span>
+              <div><div class="k">X / Twitter<\/div><div class="v">@yourhandle<\/div><\/div>
+            <\/div>
+            <div class="contact-item">
+              <span class="ic">💻<\/span>
+              <div><div class="k">GitHub<\/div><div class="v">github.com/yourname<\/div><\/div>
+            <\/div>
+            <div class="contact-item">
+              <span class="ic">💬<\/span>
+              <div><div class="k">微信 / 私信<\/div><div class="v">备注「vibe」即可<\/div><\/div>
+            <\/div>
+          <\/div>
+        <\/div>
+      <\/div>
+    <\/section>
+  <\/main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <a class="brand" href="index.html"><span class="brand__dot"><\/span>Pinkie<\/a>
+      <nav class="footer__links" aria-label="页脚导航">
+        <a href="works.html">作品<\/a><a href="creates.html">创作<\/a><a href="about.html">关于<\/a><a href="contact.html">联系<\/a>
+        <a href="#" rel="noopener">X / Twitter<\/a><a href="#" rel="noopener">GitHub<\/a>
+      <\/nav>
+      <p class="footer__copy">© 2026 Pinkie · 用 vibe 打造<\/p>
+    <\/div>
+  <\/footer>
+
+  <script src="assets/js/ambient.js?v=20260811b"><\/script>
+<\/body>
+<\/html>
