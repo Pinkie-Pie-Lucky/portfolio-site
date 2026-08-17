@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import NavAuth from "@/components/NavAuth";
 import "../../assets/css/tokens.css";
 import "../../assets/css/base.css";
 import "../../assets/css/components.css";
@@ -55,6 +56,7 @@ export default function RootLayout({
               <a href="/creates">创作</a>
               <a href="/about">关于</a>
               <a href="/contact">联系</a>
+              <NavAuth />
             </nav>
             <button
               className="nav__toggle"

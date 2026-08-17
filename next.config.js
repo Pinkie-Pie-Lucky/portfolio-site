@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  allowedDevOrigins: ["*.monkeycode-ai.online"],
   async redirects() {
     return [
       { source: "/index.html", destination: "/", permanent: true },
