@@ -15,6 +15,10 @@ export default async function AdminLayout({
     redirect("/login");
   }
 
+  if (user.role === "visitor") {
+    redirect("/");
+  }
+
   const isAdmin = user.role === "admin";
 
   return (
