@@ -52,10 +52,6 @@ export default function RootLayout({
             </a>
             <nav className="nav__links" aria-label="主导航">
               <a href="/">首页</a>
-              <a href="/works">作品</a>
-              <a href="/creates">创作</a>
-              <a href="/about">关于</a>
-              <a href="/contact">联系</a>
               <NavAuth />
             </nav>
             <button
