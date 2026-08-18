@@ -174,6 +174,7 @@ export default function UsersAdminPage() {
 
       <div className="admin-list">
         <div className="admin-list__head">
+          <span>昵称</span>
           <span>邮箱</span>
           <span>角色</span>
           <span>状态</span>
@@ -183,6 +184,9 @@ export default function UsersAdminPage() {
         {!loading &&
           users.map((u) => (
             <div className="admin-list__row" key={u.id}>
+              <span className="admin-list__email">
+                {u.name || <span className="muted">—</span>}
+              </span>
               <span className="admin-list__email">
                 {u.email}
                 {u.role === "admin" && <em>管理员</em>}

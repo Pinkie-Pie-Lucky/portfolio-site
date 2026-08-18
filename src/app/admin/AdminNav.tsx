@@ -8,7 +8,11 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
   const router = useRouter();
 
   async function handleLogout() {
-    await fetch("/api/auth/sign-out", { method: "POST" });
+    await fetch("/api/auth/sign-out", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    });
     router.push("/");
     router.refresh();
   }
