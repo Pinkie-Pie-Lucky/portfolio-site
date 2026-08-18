@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import AuthModal from "./AuthModal";
 
 type Role = "admin" | "editor" | "visitor";
 
@@ -10,6 +12,14 @@ export default function NavAuth() {
   const [isAuthed, setIsAuthed] = useState(false);
   const [role, setRole] = useState<Role | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("auth") === "login") {
+      setShowAuth(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     let mounted = true;
@@ -38,17 +48,20 @@ export default function NavAuth() {
     setLoggingOut(false);
   }
 
-  if (!isAuthed) {
-    return <Link href="/login">登录</Link>;
-  }
-
-  if (role === "visitor") {
-    return (
-      <button className="nav-auth" onClick={handleLogout} disabled={loggingOut}>
-        {loggingOut ? "退出中…" : "退出登录"}
-      </button>
-    );
-  }
-
-  return <Link href="/admin">管理</Link>;
+  return (
+    <>
+      {!isAuthed ? (
+        <button className="nav-auth" onClick={() => setShowAuth(true)}>
+          登录
+        </button>
+      ) : role === "visitor" ? (
+        <button className="nav-auth" onClick={handleLogout} disabled={loggingOut}>
+          {loggingOut ? "退出中…" : "退出登录"}
+        </button>
+      ) : (
+        <Link href="/admin">管理</Link>
+      )}
+      <AuthModal open={showAuth} onClose={() => setShowAuth(false)} />
+    </>
+  );
 }

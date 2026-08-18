@@ -33,36 +33,54 @@
   }
 
   /* ---------- 滚动浮现 ---------- */
-  const revealEls = document.querySelectorAll(".reveal");
-  if (reduceMotion) {
-    revealEls.forEach((el) => el.classList.add("in"));
-  } else if ("IntersectionObserver" in window) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-      });
-    }, { threshold: 0.15 });
-    revealEls.forEach((el) => io.observe(el));
-  } else {
-    revealEls.forEach((el) => el.classList.add("in"));
+  const revealSeen = new WeakSet();
+  const io = "IntersectionObserver" in window ? new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.15 }) : null;
+
+  function scanReveals() {
+    document.querySelectorAll(".reveal").forEach((el) => {
+      if (revealSeen.has(el)) return;
+      revealSeen.add(el);
+      if (reduceMotion || !io) { el.classList.add("in"); return; }
+      io.observe(el);
+    });
   }
 
   /* ---------- 技能条填充 ---------- */
-  const skills = document.querySelectorAll(".skill");
-  if ("IntersectionObserver" in window) {
-    const so = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) { e.target.classList.add("in"); so.unobserve(e.target); }
-      });
-    }, { threshold: 0.4 });
-    skills.forEach((s) => so.observe(s));
-  } else {
-    skills.forEach((s) => s.classList.add("in"));
+  const skillSeen = new WeakSet();
+  const so = "IntersectionObserver" in window ? new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add("in"); so.unobserve(e.target); }
+    });
+  }, { threshold: 0.4 }) : null;
+
+  function scanSkills() {
+    document.querySelectorAll(".skill").forEach((s) => {
+      if (skillSeen.has(s)) return;
+      skillSeen.add(s);
+      if (so) so.observe(s); else s.classList.add("in");
+    });
   }
 
+  scanReveals();
+  scanSkills();
+
+  // 客户端导航（Next.js SPA 跳转）后，新页面内容需重新绑定
+  const mo = new MutationObserver(() => {
+    scanReveals(); scanSkills(); scanTilt(); scanGalleries();
+  });
+  if (document.body) mo.observe(document.body, { childList: true, subtree: true });
+
   /* ---------- 卡片视差倾斜 ---------- */
-  if (!reduceMotion) {
+  const tiltSeen = new WeakSet();
+  function scanTilt() {
+    if (reduceMotion) return;
     document.querySelectorAll("[data-tilt]").forEach((card) => {
+      if (tiltSeen.has(card)) return;
+      tiltSeen.add(card);
       const max = 8;
       card.addEventListener("mousemove", (ev) => {
         const r = card.getBoundingClientRect();
@@ -76,82 +94,90 @@
   }
 
   /* ---------- 产品截图画廊：左右切换 + 胶囊圆点 + 键盘/滑动 ---------- */
-  document.querySelectorAll(".shot-gallery").forEach((g) => {
-    const track = g.querySelector(".shot-gallery__track");
-    const slides = Array.from(g.querySelectorAll(".shot-gallery__slide"));
-    const prev = g.querySelector(".shot-gallery__nav--prev");
-    const next = g.querySelector(".shot-gallery__nav--next");
-    const dotsWrap = g.querySelector(".shot-gallery__dots");
-    if (!track || slides.length === 0) return;
+  const gallerySeen = new WeakSet();
+  function scanGalleries() {
+    document.querySelectorAll(".shot-gallery").forEach((g) => {
+      if (gallerySeen.has(g)) return;
+      gallerySeen.add(g);
+      const track = g.querySelector(".shot-gallery__track");
+      const slides = Array.from(g.querySelectorAll(".shot-gallery__slide"));
+      const prev = g.querySelector(".shot-gallery__nav--prev");
+      const next = g.querySelector(".shot-gallery__nav--next");
+      const dotsWrap = g.querySelector(".shot-gallery__dots");
+      if (!track || slides.length === 0) return;
 
-    let index = 0;
-    let dots = [];
+      let index = 0;
+      let dots = [];
 
-    // 按当前图真实比例设容器比例（钳制，避免极端竖/横屏撑爆）
-    function applyRatio() {
-      const img = slides[index].querySelector("img");
-      if (img && img.naturalWidth) {
-        const r = img.naturalWidth / img.naturalHeight;
-        g.style.aspectRatio = Math.min(Math.max(r, 0.8), 1.9);
+      // 按当前图真实比例设容器比例（钳制，避免极端竖/横屏撑爆）
+      function applyRatio() {
+        const img = slides[index].querySelector("img");
+        if (img && img.naturalWidth) {
+          const r = img.naturalWidth / img.naturalHeight;
+          g.style.aspectRatio = Math.min(Math.max(r, 0.8), 1.9);
+        }
       }
-    }
-    function go(i) {
-      index = (i + slides.length) % slides.length;
-      track.style.transform = "translateX(" + (-index * 100) + "%)";
-      dots.forEach((d, k) => d.classList.toggle("is-active", k === index));
-      applyRatio();
-    }
+      function go(i) {
+        index = (i + slides.length) % slides.length;
+        track.style.transform = "translateX(" + (-index * 100) + "%)";
+        dots.forEach((d, k) => d.classList.toggle("is-active", k === index));
+        applyRatio();
+      }
 
-    // 动态生成圆点
-    if (dotsWrap) {
-      dotsWrap.innerHTML = "";
-      slides.forEach((_, i) => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "shot-gallery__dot" + (i === 0 ? " is-active" : "");
-        b.setAttribute("aria-label", "第 " + (i + 1) + " 张，共 " + slides.length + " 张");
-        b.addEventListener("click", () => go(i));
-        dotsWrap.appendChild(b);
+      // 动态生成圆点
+      if (dotsWrap) {
+        dotsWrap.innerHTML = "";
+        slides.forEach((_, i) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "shot-gallery__dot" + (i === 0 ? " is-active" : "");
+          b.setAttribute("aria-label", "第 " + (i + 1) + " 张，共 " + slides.length + " 张");
+          b.addEventListener("click", () => go(i));
+          dotsWrap.appendChild(b);
+        });
+        dots = Array.from(dotsWrap.children);
+      }
+
+      // 单图：隐藏控件
+      if (slides.length <= 1) { g.classList.add("is-single"); return; }
+
+      if (prev) prev.addEventListener("click", () => go(index - 1));
+      if (next) next.addEventListener("click", () => go(index + 1));
+
+      // 键盘 ← / →
+      g.setAttribute("tabindex", "0");
+      g.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") { go(index - 1); e.preventDefault(); }
+        if (e.key === "ArrowRight") { go(index + 1); e.preventDefault(); }
       });
-      dots = Array.from(dotsWrap.children);
-    }
 
-    // 单图：隐藏控件
-    if (slides.length <= 1) { g.classList.add("is-single"); return; }
+      // 移动端滑动
+      let sx = 0;
+      g.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
+      g.addEventListener("touchend", (e) => {
+        const dx = e.changedTouches[0].clientX - sx;
+        if (Math.abs(dx) > 40) go(index + (dx < 0 ? 1 : -1));
+      }, { passive: true });
 
-    if (prev) prev.addEventListener("click", () => go(index - 1));
-    if (next) next.addEventListener("click", () => go(index + 1));
+      // 点击图片左右半边也能切换（左=上一张，右=下一张）；避开箭头与圆点
+      g.addEventListener("click", (e) => {
+        if (e.target.closest(".shot-gallery__nav") || e.target.closest(".shot-gallery__dot")) return;
+        const rect = g.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        go(index + (x < rect.width / 2 ? -1 : 1));
+      });
 
-    // 键盘 ← / →
-    g.setAttribute("tabindex", "0");
-    g.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") { go(index - 1); e.preventDefault(); }
-      if (e.key === "ArrowRight") { go(index + 1); e.preventDefault(); }
+      // 图片加载后校正比例
+      slides.forEach((s) => {
+        const im = s.querySelector("img");
+        if (im && !im.complete) im.addEventListener("load", applyRatio);
+      });
+      applyRatio();
     });
+  }
 
-    // 移动端滑动
-    let sx = 0;
-    g.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
-    g.addEventListener("touchend", (e) => {
-      const dx = e.changedTouches[0].clientX - sx;
-      if (Math.abs(dx) > 40) go(index + (dx < 0 ? 1 : -1));
-    }, { passive: true });
-
-    // 点击图片左右半边也能切换（左=上一张，右=下一张）；避开箭头与圆点
-    g.addEventListener("click", (e) => {
-      if (e.target.closest(".shot-gallery__nav") || e.target.closest(".shot-gallery__dot")) return;
-      const rect = g.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      go(index + (x < rect.width / 2 ? -1 : 1));
-    });
-
-    // 图片加载后校正比例
-    slides.forEach((s) => {
-      const im = s.querySelector("img");
-      if (im && !im.complete) im.addEventListener("load", applyRatio);
-    });
-    applyRatio();
-  });
+  scanTilt();
+  scanGalleries();
 
   /* ---------- 光标粒子拖尾 + 连线 ---------- */
   const canvas = document.getElementById("ambient-canvas");

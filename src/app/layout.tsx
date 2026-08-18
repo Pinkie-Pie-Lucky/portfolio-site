@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Suspense } from "react";
 import NavAuth from "@/components/NavAuth";
 import "../../assets/css/tokens.css";
 import "../../assets/css/base.css";
@@ -52,7 +53,9 @@ export default function RootLayout({
             </a>
             <nav className="nav__links" aria-label="主导航">
               <a href="/">首页</a>
-              <NavAuth />
+              <Suspense fallback={null}>
+                <NavAuth />
+              </Suspense>
             </nav>
             <button
               className="nav__toggle"
